@@ -1,49 +1,49 @@
 from __future__ import annotations
 
-import asyncio
-
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from engine import QATask
-from server.qa_service import (
-    SCREENSHOT_DIR,
-    normalize_url,
-    run_qa_task_sync,
-    serialize_tool_outputs_with_urls,
+
+from server.config import SCREENSHOT_DIR, get_settings
+from server.api import router as api_router
+
+
+settings = get_settings()
+
+
+app = FastAPI(
+    title="Backend Service for QA Engineer Bot",
+    version="0.1.0",
+    docs_url="/docs" if settings.app_env != "production" else None,
+    redoc_url="/redoc" if settings.app_env != "production" else None,
 )
-from server.schemas import QARequest, QAResponse
-
-DEFAULT_TASK = (
-    "Explore the main user flow and report functional, UX, and accessibility issues."
+app.mount(
+    "/screenshots", StaticFiles(directory=str(SCREENSHOT_DIR)), name="screenshots"
 )
 
-app = FastAPI()
-app.mount("/screenshots", StaticFiles(directory=str(SCREENSHOT_DIR)), name="screenshots")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Customer-Session-Id"],
+)
 
-
-@app.post("/api/qa", response_model=QAResponse)
-async def qa_endpoint(request: QARequest, _http_request: Request):
-    target_url = normalize_url(request.url)
-    task = QATask(
-        target_url=target_url,
-        task=DEFAULT_TASK,
-        context=request.context,
+if settings.trusted_hosts:
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=settings.trusted_hosts,
     )
 
-    try:
-        result = await asyncio.to_thread(run_qa_task_sync, task, request)
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"QA run failed: {exc}") from exc
+if settings.force_https:
+    app.add_middleware(HTTPSRedirectMiddleware)
 
-    tool_outputs, screenshot_urls = serialize_tool_outputs_with_urls(
-        result.tool_outputs, str(_http_request.base_url)
-    )
-    return {
-        "url": target_url,
-        "issues": result.issues,
-        "tool_outputs": tool_outputs,
-        "screenshots": screenshot_urls,
-        "raw_model_output": result.raw_model_output,
-        "trace": result.trace,
-    }
+app.include_router(api_router, prefix="/api")
+
+
+@app.get("/", tags=["meta"])
+async def root() -> dict[str, str]:
+    return {"service": "Backend Service QA Engineer Bot", "status": "ok"}

@@ -4,3 +4,4 @@ fastapi
 uvicorn
 pydantic_settings
 huggingface_hub
+black
