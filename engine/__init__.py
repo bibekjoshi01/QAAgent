@@ -18,8 +18,6 @@ from engine.tools import (
     ToolCollection,
 )
 
-DEFAULT_QA_TASK = "Explore main user flows and report functional, UX, accessibility, performance, and security issues."
-
 
 class Engine:
     """Modular QA engine that can be called from any backend service."""
@@ -33,7 +31,7 @@ class Engine:
         tools: Iterable[BaseTool] | None = None,
         max_iterations: int = 20,
         temperature: float = 0.2,
-        max_tokens: int = 4096,
+        max_tokens: int = 10000,
         locale: str = "en-US",
         device_profile: str = "iphone_14",
         network_profile: str = "wifi",
@@ -92,13 +90,18 @@ class Engine:
         )
 
     async def run_task(self, task: QATask) -> QAResult:
+        # Build tools
         tools = self._build_default_tools(task.target_url)
+
+        # System Prompt
         system_prompt = build_system_prompt(
             tools=[tools.get(n) for n in tools.list_names()],
             locale=self.locale,
             device_profile=self.device_profile,
             network_profile=self.network_profile,
         )
+
+        # User Prompt
         user_prompt = build_user_prompt(
             target_url=task.target_url,
             task=task.task,
