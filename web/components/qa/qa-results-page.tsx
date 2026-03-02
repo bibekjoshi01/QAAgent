@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Download, ArrowRight, CheckCircle2, CircleX } from "lucide-react";
-import { SiteFooter } from "@/components/public/site-footer";
 import { IssueTable } from "@/components/issues/issue-table";
 import MarkdownRenderer from "@/components/markdown/markdown-renderer";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -171,38 +170,16 @@ export function QAResultsPage() {
 
   if (!report) {
     return (
-      <div className="min-h-screen bg-[var(--surface-bg)] text-[var(--surface-fg)]">
-        <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-8">
-          <Link href="/" className="text-xl font-semibold tracking-tight">
-            QA agent
-          </Link>
-        </header>
-        <main className="mx-auto w-full max-w-6xl px-6 pb-20">
-          <section className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-6">
-            <p className="text-sm text-slate-700">Loading latest scan report...</p>
-          </section>
-        </main>
-        <SiteFooter />
-      </div>
+      <main className="mx-auto w-full max-w-6xl px-6 pb-20">
+        <section className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-6">
+          <p className="text-sm text-slate-700">Loading latest scan report...</p>
+        </section>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--surface-bg)] text-[var(--surface-fg)]">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-8">
-        <Link href="/" className="text-xl font-semibold tracking-tight">
-          QA agent
-        </Link>
-        <nav className="flex items-center gap-6 text-sm">
-          <Link href="/#about" className="text-[var(--surface-muted)] transition hover:text-[var(--surface-fg)]">
-            about
-          </Link>
-          <Link href="/qa" className="font-medium text-[var(--surface-fg)]">
-            try now
-          </Link>
-        </nav>
-      </header>
-
+    <>
       <main className="mx-auto w-full max-w-6xl space-y-8 px-6 pb-20">
         <section className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -267,11 +244,10 @@ export function QAResultsPage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-semibold">Step {step.step}</p>
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      step.status === "failed"
-                        ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"
-                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-                    }`}
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${step.status === "failed"
+                      ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"
+                      : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                      }`}
                   >
                     {step.status}
                   </span>
@@ -365,7 +341,8 @@ export function QAResultsPage() {
                               )}
                             </div>
                           </details>
-                        )})}
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -402,8 +379,6 @@ export function QAResultsPage() {
           </details>
         </section>
       </main>
-
-      <SiteFooter />
-    </div>
+    </>
   );
 }

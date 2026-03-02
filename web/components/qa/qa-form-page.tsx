@@ -1,13 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useRunScan } from "@/hooks/use-run-scan";
-import { SiteFooter } from "@/components/public/site-footer";
 import { DeviceProfile, NetworkProfile, QAToolName, ScanPayload, ScanReport } from "@/types/scan";
 
 const deviceOptions = [
@@ -93,22 +91,8 @@ export function QAFormPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--surface-bg)] text-[var(--surface-fg)]">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-8">
-        <Link href="/" className="text-xl font-semibold tracking-tight">
-          QA agent
-        </Link>
-        <nav className="flex items-center gap-6 text-sm">
-          <Link href="/#about" className="text-[var(--surface-muted)] transition hover:text-[var(--surface-fg)]">
-            about
-          </Link>
-          <Link href="/qa" className="font-medium text-[var(--surface-fg)]">
-            try now
-          </Link>
-        </nav>
-      </header>
-
-      <main className="mx-auto w-full max-w-6xl px-6 pb-20">
+    <>
+      <main className="mx-auto w-full max-w-6xl px-6 pb-20 pt-6 md:pt-10">
         <section className="mx-auto max-w-4xl rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-6 shadow-sm sm:p-8">
           <h1 className="text-3xl font-semibold tracking-tight">Autonomous Scan</h1>
           <p className="mt-2 text-sm text-[var(--surface-muted)]">Run an end-to-end QA mission and generate a full report.</p>
@@ -209,8 +193,6 @@ export function QAFormPage() {
           </div>
         </section>
       </main>
-
-      <SiteFooter />
-    </div>
+    </>
   );
 }
